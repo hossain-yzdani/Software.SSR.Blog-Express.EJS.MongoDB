@@ -1,0 +1,61 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="container max-w-md mx-auto px-4 py-12">
+  <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+    <h1 class="text-3xl font-bold text-center text-white mb-2">Sign in</h1>
+    <p class="text-center text-gray-400 mb-8">Weelcome to MDB</p>
+
+    <form action="/auth/login" method="POST" id="loginForm">
+      <div class="mb-5">
+        <label for="email" class="block text-white/80 text-sm font-medium mb-2">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          required
+          class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-white/40"
+          placeholder="example@email.com"
+        >
+      </div>
+
+      <!-- رمز عبور -->
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-2">
+          <label for="password" class="text-white/80 text-sm font-medium">Password</label>
+          <a href="/auth/forgot-password" class="text-sm text-blue-400 hover:text-blue-300 transition">forget?</a>
+        </div>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          required
+          class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-white/40"
+          placeholder="••••••••"
+        >
+      </div>
+
+      <button 
+        type="submit" 
+        id="submitBtn"
+        class="w-full bg-primary text-white font-medium py-3 rounded-lg transition-all duration-300 transform hover:scale-[1.02]"
+      >
+        enter
+      </button>
+    </form>
+
+    <div class="mt-6 text-center text-sm">
+      You dont have account?
+      <a href="/auth/register" class="transition font-medium">Register</a>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Logining';
+  });
+</script>
+
+<%- include('../partials/footer.ejs') %>
