@@ -18,3 +18,19 @@ if (menuToggle) {
     });
   });
 }
+
+function deletePost(id) {
+  if (confirm("Are you sure?")) {
+    fetch(`/blog/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) location.reload();
+        else alert("Error!");
+      });
+  }
+}

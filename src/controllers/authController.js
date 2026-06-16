@@ -1,39 +1,15 @@
 import User from '../models/userModel.js';
+import { hashPassword } from '../utils/hash.js';
 import { generateToken } from "../utils/jwt.js";
 
 export const register = async (req,res) => {
-  res.render("auth/register", { activePage: 'register' });
+  res.render("auth/register", { activePage: 'register', user: req.user });
 }
 
 export const login = async (req,res) => {
-  res.render("auth/login", { activePage: 'login' });
+  res.render("auth/login", { activePage: 'login', user: req.user });
 };
 
-
-const sendTokenResponse = (user, statusCode, res) => {
-  const token = generateToken({ id: user._id, role: user.role });
-
-  const cookieOptions = {
-    expires: new Date(Date.now() + process.env.COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-  };
-
-  res.cookie('token', token, cookieOptions);
-
-  res.status(statusCode).json({
-    status: 'success',
-    token,
-    data: {
-      user: {
-        id: user._id,
-        fullname: user.fullname,
-        email: user.email,
-        role: user.role,
-      },
-    },
-  });
-};
 
 export const registerAPI = async (req, res) => {
   try {
@@ -44,8 +20,17 @@ export const registerAPI = async (req, res) => {
       return res.status(400).json({ message: 'The given email already exists.' });
     }
 
-    const user = await User.create({ fullname, email, password });
-    sendTokenResponse(user, 201, res);
+    const hashedPassword = await hashPassword(password);
+    const user = await User.create({ fullname, email, password: hashedPassword });
+    const token = generateToken(user._id, user.role);
+    res.setHeader('authorization', `Bearer ${token}`);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "strict",
+    });
+    res.status(201).redirect("/");
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -60,11 +45,61 @@ export const loginAPI = async (req, res) => {
     }
 
     const user = await User.findOne({ email }).select('+password');
-    if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: 'Email or password is not valid.' });
+    if (!user) {
+      return res.status(400).json({ message: 'The given email does not exist.' });
+    }
+    const isMatch = await user.comparePassword(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'The given password is wrong.' });
+    }
+    const token = generateToken(user._id, user.role);
+    res.setHeader('authorization', `Bearer ${token}`);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "strict",
+    });
+    res.status(201).redirect("/");
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const { fullname, email } = req.body;
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+    user.fullname = fullname;
+    user.email = email;
+    await user.save();
+    res.status(200).redirect('/me');
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updatePassword = async (req, res) => {
+  try {
+    const { confirmPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
     }
 
-    sendTokenResponse(user, 200, res);
+    const isMatch = await user.comparePassword(confirmPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'The current password is wrong.' });
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+    user.password = hashedPassword;
+    await user.save();
+    res.status(200).redirect('/me');
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -72,14 +107,6 @@ export const loginAPI = async (req, res) => {
 
 export const logoutAPI = (req, res) => {
   res.cookie('token', 'none', { expires: new Date(Date.now() + 10 * 1000), httpOnly: true });
-  res.status(200).json({ message: 'You loged out successfully' });
+  res.status(200).redirect('/');
 };
 
-export const getMe = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id);
-    res.render("pages/me", { user });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};

@@ -1,7 +1,11 @@
 import jwt from 'jsonwebtoken';
+import { configDotenv } from "dotenv";
 
-const secret = process.env.JWT_SECRET;
-const expiresIn = process.env.JWT_EXPIRES_IN;
+configDotenv();
+
+const secret =
+   process.env.JWT_SECRET;
+const expiresIn =  process.env.JWT_EXPIRES_IN;
 
 export const generateToken = (userId, role) => {
   return jwt.sign({id: userId, role: role}, secret, { expiresIn })

@@ -1,3 +1,4 @@
+
 <nav class="navbar">
   <div class="nav-container">
     <div class="nav-brand">
@@ -8,6 +9,50 @@
       <a href="/" class="<%= activePage === 'home' ? 'active' : '' %>">Home</a>
       <a href="/about" class="<%= activePage === 'about' ? 'active' : '' %>">About</a>
       <a href="/contact" class="<%= activePage === 'contact' ? 'active' : '' %>">Contact</a>
+      
+      <% if (user) { %>
+        <div class="user-menu">
+          <button class="user-btn" id="userMenuBtn">
+            <div class="user-avatar">
+              <svg class="user-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <span class="user-name"><%= user.fullname %></span>
+            <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          <!-- dropdown منو -->
+          <div class="dropdown-menu" id="userDropdown">
+            <a href="/me" class="dropdown-item">
+              <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>My Account</span>
+            </a>
+            <!-- <a href="/account/orders" class="dropdown-item">
+              <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              <span>My Orders</span>
+            </a> -->
+            <div class="dropdown-divider"></div>
+            <a href="/auth/logout" class="dropdown-item text-red-400">
+              <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Logout</span>
+            </a>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="auth-buttons">
+          <a href="/auth/login" class="login-btn">Login</a>
+          <a href="/auth/register" class="register-btn">Register</a>
+        </div>
+      <% } %>
     </div>
     
     <button class="menu-toggle" id="menuToggle" aria-label="Menu">
@@ -17,3 +62,330 @@
     </button>
   </div>
 </nav>
+
+<style>
+  /* ===== NAVBAR STYLES ===== */
+  .navbar {
+    background-color: #0a0a0f;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    border-bottom: 1px solid #1f1f2e;
+  }
+  
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 44px;
+  }
+  
+  .logo {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    text-decoration: none;
+    letter-spacing: -0.3px;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+  
+  .nav-links a {
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .nav-links a:hover {
+    color: #ffffff;
+  }
+  
+  .nav-links a.active {
+    color: #3b82f6;
+  }
+  
+  /* ===== USER MENU ===== */
+  .user-menu {
+    position: relative;
+  }
+  
+  .user-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 40px;
+    padding: 4px 12px 4px 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .user-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3b82f6;
+  }
+  
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    background: #3b82f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .user-icon {
+    width: 16px;
+    height: 16px;
+    color: white;
+  }
+  
+  .user-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: white;
+  }
+  
+  .dropdown-arrow {
+    width: 12px;
+    height: 12px;
+    color: #9ca3af;
+    transition: transform 0.2s;
+  }
+  
+  .user-btn.active .dropdown-arrow {
+    transform: rotate(180deg);
+  }
+  
+  /* ===== DROPDOWN MENU ===== */
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 200px;
+    background: #1e1e2e;
+    border: 1px solid #2a2a3a;
+    border-radius: 12px;
+    padding: 6px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+    z-index: 100;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+  
+  .dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    color: #d1d5db;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  
+  .dropdown-item:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+  }
+  
+  .dropdown-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  
+  .dropdown-divider {
+    height: 1px;
+    background: #2a2a3a;
+    margin: 6px 0;
+  }
+  
+  .text-red-400 {
+    color: #f87171;
+  }
+  
+  .text-red-400:hover {
+    background: rgba(248, 113, 113, 0.1);
+    color: #f87171;
+  }
+  
+  /* ===== AUTH BUTTONS ===== */
+  .auth-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .login-btn {
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+    padding: 6px 0;
+  }
+  
+  .login-btn:hover {
+    color: #3b82f6;
+  }
+  
+  .register-btn {
+    background: #3b82f6;
+    color: white;
+    text-decoration: none;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .register-btn:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+  }
+  
+  /* ===== MOBILE MENU ===== */
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .menu-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background-color: #ffffff;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+  }
+  
+  .menu-toggle.open span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  
+  .menu-toggle.open span:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .menu-toggle.open span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+  
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .menu-toggle {
+      display: flex;
+    }
+    
+    .nav-links {
+      position: fixed;
+      top: 64px;
+      left: -100%;
+      width: 100%;
+      background-color: #0a0a0f;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 40px 0;
+      transition: left 0.3s ease;
+      border-bottom: 1px solid #1f1f2e;
+    }
+    
+    .nav-links.open {
+      left: 0;
+    }
+    
+    .nav-links a {
+      font-size: 16px;
+    }
+    
+    .user-name {
+      display: none;
+    }
+    
+    .user-btn {
+      padding: 4px;
+    }
+    
+    .dropdown-menu {
+      position: fixed;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      border-radius: 20px 20px 0 0;
+      min-width: auto;
+    }
+    
+    .auth-buttons {
+      gap: 8px;
+    }
+    
+    .register-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+  }
+</style>
+
+<script>
+  // منوی موبایل
+  const menuToggle = document.getElementById('menuToggle');
+  const navLinks = document.getElementById('navLinks');
+  
+  if (menuToggle) {
+    menuToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      menuToggle.classList.toggle('open');
+    });
+  }
+  
+  // dropdown با کلیک
+  const userBtn = document.getElementById('userMenuBtn');
+  const userDropdown = document.getElementById('userDropdown');
+  
+  if (userBtn && userDropdown) {
+    userBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userDropdown.classList.toggle('show');
+      userBtn.classList.toggle('active');
+    });
+    
+    // بستن با کلیک بیرون
+    document.addEventListener('click', (e) => {
+      if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+        userDropdown.classList.remove('show');
+        userBtn.classList.remove('active');
+      }
+    });
+  }
+</script>
